@@ -5,7 +5,7 @@ import time
 import subprocess
 
 # 切换当前目录下的所有项目的git分支
-rootPath = 'F:/xxx/iov/'
+rootPath = 'F:/xxx/xxx/'
 
 
 def walf_file(path):
