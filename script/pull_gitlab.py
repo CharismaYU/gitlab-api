@@ -14,6 +14,7 @@ page = 1
 per_page = 100
 
 
+# 获取某个组下的所有项目，默认一页20条数据
 def gen_next_url(target_id):
     return "http://%s/api/v4/groups/%s/projects?private_token=%s" % (gitlabAddr, target_id, gitlabToken)
 
@@ -22,6 +23,7 @@ def gen_subgroups_url(target_id):
     return "http://%s/api/v4/groups/%s/subgroups?private_token=%s" % (gitlabAddr, target_id, gitlabToken)
 
 
+# 获取gitlab上所有的项目，默认一页20条数据
 def gen_global_url():
     # http://XXX/api/v4/projects?private_token=XXX&page=1&per_page=100
     # page 当前页码
