@@ -3,7 +3,6 @@ import os
 import shlex
 import subprocess
 import time
-from urllib.parse import urlencode
 from urllib.request import urlopen
 
 gitlabToken = 'xxx'  # 自己gitlab上的tokne
@@ -13,14 +12,13 @@ projectPath = 'F:/xxx/'
 page = 1
 per_page = 100
 
-
 # 获取某个组下的所有项目，默认一页20条数据
 def gen_next_url(target_id):
-    return "http://%s/api/v4/groups/%s/projects?private_token=%s" % (gitlabAddr, target_id, gitlabToken)
+    return "http://%s/api/v4/groups/%s/projects?private_token=%s&per_page=%s" % (gitlabAddr, target_id, gitlabToken, per_page)
 
 
 def gen_subgroups_url(target_id):
-    return "http://%s/api/v4/groups/%s/subgroups?private_token=%s" % (gitlabAddr, target_id, gitlabToken)
+    return "http://%s/api/v4/groups/%s/subgroups?private_token=%s&per_page=%s" % (gitlabAddr, target_id, gitlabToken, per_page)
 
 
 # 获取gitlab上所有的项目，默认一页20条数据
@@ -28,24 +26,23 @@ def gen_global_url():
     # http://XXX/api/v4/projects?private_token=XXX&page=1&per_page=100
     # page 当前页码
     # per_page 每页显示条数
-    return "http://%s/api/v4/projects?private_token=%s" % (gitlabAddr, gitlabToken)
+    return "http://%s/api/v4/projects?private_token=%s&per_page=%s" % (gitlabAddr, gitlabToken, per_page)
 
 
 # 获取所有的组
 def gen_groups_url():
-    return "http://%s/api/v4/groups?private_token=%s" % (gitlabAddr, gitlabToken)
+    return "http://%s/api/v4/groups?private_token=%s&per_page=%s" % (gitlabAddr, gitlabToken, per_page)
 
 
-def pull_code(url, data):
+def pull_code(url):
     """
     调用url，获取ssh_url_to_repo和path_with_namespace，再通过git来pull代码到本地
     :param url: 接口地址
-    :param data: 请求参数
     :return:
     """
 
     # 发送用户请求
-    allProjects = urlopen(url, data)
+    allProjects = urlopen(url)
     allProjectsDict = json.loads(allProjects.read().decode())
     if len(allProjectsDict) == 0:
         return
@@ -73,10 +70,7 @@ def get_next(group_id):
     :return:
     """
     url = gen_next_url(group_id)
-    data = {'page': page, 'per_page': per_page}
-    # 将自定义data转换成标准格式
-    data = urlencode(data).encode('utf-8')
-    return pull_code(url, data)
+    return pull_code(url)
 
 
 def get_sub_groups(parent_id):
@@ -139,10 +133,7 @@ def download_code(parent_id):
 def main():
     if groupName == '':
         url = gen_global_url()
-        data = {'page': page, 'per_page': per_page}
-        # 将自定义data转换成标准格式
-        data = urlencode(data).encode('utf-8')
-        pull_code(url, data)
+        pull_code(url)
     else:
         # 获取所有的组
         url = gen_groups_url()
