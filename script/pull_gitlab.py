@@ -28,11 +28,9 @@ def gen_global_url():
     # per_page 每页显示条数
     return "http://%s/api/v4/projects?private_token=%s&per_page=%s" % (gitlabAddr, gitlabToken, per_page)
 
-
 # 获取所有的组
 def gen_groups_url():
     return "http://%s/api/v4/groups?private_token=%s&per_page=%s" % (gitlabAddr, gitlabToken, per_page)
-
 
 def pull_code(url):
     """
@@ -42,104 +40,98 @@ def pull_code(url):
     """
 
     # 发送用户请求
-    allProjects = urlopen(url)
-    allProjectsDict = json.loads(allProjects.read().decode())
-    if len(allProjectsDict) == 0:
+    allProjects = urlopen (url)
+    allProjectsDict = json.loads (allProjects.read ().decode ())
+    if len (allProjectsDict) == 0:
         return
     for thisProject in allProjectsDict:
         try:
             thisProjectURL = thisProject['ssh_url_to_repo']
             thisProjectPath = thisProject['path_with_namespace']
-            print(thisProjectURL + ' ' + thisProjectPath)
+            print (thisProjectURL + ' ' + thisProjectPath)
             thisProjectPath = projectPath + thisProjectPath
-            if os.path.exists(thisProjectPath):
-                command = shlex.split('git -C "%s" pull' % (thisProjectPath))
+            if os.path.exists (thisProjectPath):
+                command = shlex.split ('git -C "%s" pull' % (thisProjectPath))
             else:
-                command = shlex.split('git clone %s %s' % (thisProjectURL, thisProjectPath))
-            resultCode = subprocess.Popen(command)
-            print(resultCode)
-            time.sleep(1)
+                command = shlex.split ('git clone %s %s' % (thisProjectURL, thisProjectPath))
+            resultCode = subprocess.Popen (command)
+            print (resultCode)
+            time.sleep (1)
         except Exception as e:
-            print("Error on %s: %s" % (thisProjectURL, e.strerror))
+            print ("Error on %s: %s" % (thisProjectURL, e.strerror))
     return resultCode
-
 
 def get_next(group_id):
     """
     :param group_id:
     :return:
     """
-    url = gen_next_url(group_id)
-    return pull_code(url)
-
+    url = gen_next_url (group_id)
+    return pull_code (url)
 
 def get_sub_groups(parent_id):
-    url = gen_subgroups_url(parent_id)
-    allProjects = urlopen(url)
-    allProjectsDict = json.loads(allProjects.read().decode())
+    url = gen_subgroups_url (parent_id)
+    allProjects = urlopen (url)
+    allProjectsDict = json.loads (allProjects.read ().decode ())
     sub_ids = []
-    if len(allProjectsDict) == 0:
+    if len (allProjectsDict) == 0:
         return sub_ids
     for thisProject in allProjectsDict:
         try:
             id = thisProject['id']
-            sub_ids.append(id)
+            sub_ids.append (id)
         except Exception as e:
-            print("Error on %s: %s" % (id, e.strerror))
+            print ("Error on %s: %s" % (id, e.strerror))
     return sub_ids
-
 
 def cal_next_sub_groupIds(parent_id):
     parent = parent_id
     parent_list = []
-    sub_ids = get_sub_groups(parent_id)
-    url = gen_next_url(parent_id)
-    ok = url_exist(url)
-    if len(sub_ids) != 0 and ok == False:
-        for i in range(len(sub_ids)):
-            print(sub_ids[i])
-            a = cal_next_sub_groupIds(sub_ids[i])
+    sub_ids = get_sub_groups (parent_id)
+    url = gen_next_url (parent_id)
+    ok = url_exist (url)
+    if len (sub_ids) != 0 and ok == False:
+        for i in range (len (sub_ids)):
+            print (sub_ids[i])
+            a = cal_next_sub_groupIds (sub_ids[i])
             return a
-    if len(sub_ids) != 0 and ok == True:
-        for i in range(len(sub_ids)):
+    if len (sub_ids) != 0 and ok == True:
+        for i in range (len (sub_ids)):
             parent = sub_ids[i]
-            parent_list.append(sub_ids[i])
-            a = cal_next_sub_groupIds(sub_ids[i])
-            parent_list.extend(a)
-    if len(sub_ids) == 0 and ok == True:
-        parent_list.append(parent)
+            parent_list.append (sub_ids[i])
+            a = cal_next_sub_groupIds (sub_ids[i])
+            parent_list.extend (a)
+    if len (sub_ids) == 0 and ok == True:
+        parent_list.append (parent)
         return parent_list
-    if len(sub_ids) == 0 and ok == False:
+    if len (sub_ids) == 0 and ok == False:
         return parent_list
     return parent_list
 
-
 # url是否有数据
 def url_exist(url):
-    allProjects = urlopen(url)
-    allProjectsDict = json.loads(allProjects.read().decode())
-    if len(allProjectsDict) == 0:
+    allProjects = urlopen (url)
+    allProjectsDict = json.loads (allProjects.read ().decode ())
+    if len (allProjectsDict) == 0:
         return False
     return True
 
-
 def download_code(parent_id):
-    data = cal_next_sub_groupIds(parent_id)
+    data = cal_next_sub_groupIds (parent_id)
     for group_id in data:
-        get_next(group_id)
+        get_next (group_id)
     return
-
 
 def main():
     if groupName == '':
-        url = gen_global_url()
-        pull_code(url)
+        url = gen_global_url ()
+        pull_code (url)
     else:
         # 获取所有的组
-        url = gen_groups_url()
-        allProjects = urlopen(url)
-        allProjectsDict = json.loads(allProjects.read().decode())
-        if len(allProjectsDict) == 0:
+        url = gen_groups_url ()
+        allProjects = urlopen (url)
+        allProjectsDict = json.loads (allProjects.read ().decode ())
+        if len (allProjectsDict) == 0:
             return
         groupId = ''
         for thisProject in allProjectsDict:
@@ -150,10 +142,9 @@ def main():
                     groupId = thisProject['id']
                     break
             except Exception as e:
-                print("Error on %s: %s" % (thisName, e.strerror))
-        download_code(groupId)
+                print ("Error on %s: %s" % (thisName, e.strerror))
+        download_code (groupId)
         return
 
-
 if __name__ == '__main__':
-    main()
+    main ()
