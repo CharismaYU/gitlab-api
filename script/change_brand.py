@@ -31,18 +31,23 @@ def globDir_FirstDir(path):
                 break
 
 
-# 定义一个函数，path为你的路径
+# 定义一个函数，path为你的路径, 会查找两级
 def traversalDir_FirstDir(filePath):
     # 判断路径是否存在
     if os.path.exists (filePath):
         # 获取该目录下的所有文件或文件夹目录(只找一级的）
-        files = os.listdir (filePath)
-        for file in files:
+        firstFiles = os.listdir (filePath)
+        for firstFile in firstFiles:
             # 得到该文件下所有目录的路径
-            m = os.path.join (filePath, file)
+            m = os.path.join (filePath, firstFile)
             # 判断该路径下是否是文件夹
             if os.path.isdir (m):
-                switch_brand (m)
+                # 获取该目录下的所有文件或文件夹目录(只找一级的）
+                secondFiles = os.listdir (m)
+                for secondFile in secondFiles:
+                    three = os.path.join(m, secondFile)
+                    if os.path.isdir(three):
+                        switch_brand (three)
 
 
 def switch_brand(dirPath):
@@ -51,9 +56,9 @@ def switch_brand(dirPath):
         if os.path.exists (gitPath):
             os.chdir (dirPath)
             # 创建并合并分支
-            command = shlex.split ('git checkout -b origin/develop')
+            command = shlex.split ('git checkout -b develop origin/develop')
             resultCode = subprocess.Popen (command)
-            print (dirPath + ':::' + resultCode)
+            #print (dirPath + ':::' + resultCode)
             time.sleep (1)
     except Exception as e:
         print ("Error on %s: %s" % (dirPath, e.strerror))
@@ -62,7 +67,8 @@ def switch_brand(dirPath):
 
 def main():
     # walf_file (rootPath)
-    # globDir_FirstDir (rootPath)
+     #globDir_FirstDir (rootPath)
+    # 二级形式，查找当前目录下的文件夹，再遍历每个文件夹，找到所有项目，切换分支
     traversalDir_FirstDir (rootPath)
 
 
