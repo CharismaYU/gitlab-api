@@ -5,7 +5,7 @@ import time
 import subprocess
 
 # 切换当前目录下的所有项目的git分支
-rootPath = 'F:/xxx/xxx/'
+rootPath = 'D:/javaWorkSpace/framework/'
 
 
 def walf_file(path):
@@ -46,20 +46,19 @@ def traversalDir_FirstDir(filePath):
                 secondFiles = os.listdir (m)
                 for secondFile in secondFiles:
                     three = os.path.join(m, secondFile)
-                    if os.path.isdir(three):
-                        switch_brand (three)
+                    gitPath = m + '/.git'
+                    if os.path.isdir(three) and os.path.exists (gitPath):
+                        switch_brand (m)
 
 
 def switch_brand(dirPath):
     try:
-        gitPath = dirPath + '/.git'
-        if os.path.exists (gitPath):
-            os.chdir (dirPath)
-            # 创建并合并分支
-            command = shlex.split ('git checkout -b develop origin/develop')
-            resultCode = subprocess.Popen (command)
-            #print (dirPath + ':::' + resultCode)
-            time.sleep (1)
+        os.chdir (dirPath)
+         # 创建并合并分支
+        command = shlex.split ('git checkout -b develop origin/develop')
+        resultCode = subprocess.Popen (command)
+        #print (dirPath + ':::' + resultCode)
+        time.sleep (1)
     except Exception as e:
         print ("Error on %s: %s" % (dirPath, e.strerror))
     return
@@ -67,9 +66,9 @@ def switch_brand(dirPath):
 
 def main():
     # walf_file (rootPath)
-     #globDir_FirstDir (rootPath)
+    # globDir_FirstDir (rootPath)
     # 二级形式，查找当前目录下的文件夹，再遍历每个文件夹，找到所有项目，切换分支
-    traversalDir_FirstDir (rootPath)
+     traversalDir_FirstDir (rootPath)
 
 
 if __name__ == '__main__':

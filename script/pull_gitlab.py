@@ -12,13 +12,16 @@ projectPath = 'F:/xxx/'
 page = 1
 per_page = 100
 
+
 # 获取某个组下的所有项目，默认一页20条数据
 def gen_next_url(target_id):
-    return "http://%s/api/v4/groups/%s/projects?private_token=%s&per_page=%s" % (gitlabAddr, target_id, gitlabToken, per_page)
+    return "http://%s/api/v4/groups/%s/projects?private_token=%s&per_page=%s" % (
+        gitlabAddr, target_id, gitlabToken, per_page)
 
 
 def gen_subgroups_url(target_id):
-    return "http://%s/api/v4/groups/%s/subgroups?private_token=%s&per_page=%s" % (gitlabAddr, target_id, gitlabToken, per_page)
+    return "http://%s/api/v4/groups/%s/subgroups?private_token=%s&per_page=%s" % (
+        gitlabAddr, target_id, gitlabToken, per_page)
 
 
 # 获取gitlab上所有的项目，默认一页20条数据
@@ -28,9 +31,11 @@ def gen_global_url():
     # per_page 每页显示条数
     return "http://%s/api/v4/projects?private_token=%s&per_page=%s" % (gitlabAddr, gitlabToken, per_page)
 
+
 # 获取所有的组
 def gen_groups_url():
     return "http://%s/api/v4/groups?private_token=%s&per_page=%s" % (gitlabAddr, gitlabToken, per_page)
+
 
 def pull_code(url):
     """
@@ -56,10 +61,11 @@ def pull_code(url):
                 command = shlex.split ('git clone %s %s' % (thisProjectURL, thisProjectPath))
             resultCode = subprocess.Popen (command)
             print (resultCode)
-            time.sleep (1)
+            time.sleep (5)
         except Exception as e:
             print ("Error on %s: %s" % (thisProjectURL, e.strerror))
     return resultCode
+
 
 def get_next(group_id):
     """
@@ -68,6 +74,7 @@ def get_next(group_id):
     """
     url = gen_next_url (group_id)
     return pull_code (url)
+
 
 def get_sub_groups(parent_id):
     url = gen_subgroups_url (parent_id)
@@ -83,6 +90,7 @@ def get_sub_groups(parent_id):
         except Exception as e:
             print ("Error on %s: %s" % (id, e.strerror))
     return sub_ids
+
 
 def cal_next_sub_groupIds(parent_id):
     parent = parent_id
@@ -108,6 +116,7 @@ def cal_next_sub_groupIds(parent_id):
         return parent_list
     return parent_list
 
+
 # url是否有数据
 def url_exist(url):
     allProjects = urlopen (url)
@@ -116,11 +125,13 @@ def url_exist(url):
         return False
     return True
 
+
 def download_code(parent_id):
     data = cal_next_sub_groupIds (parent_id)
     for group_id in data:
         get_next (group_id)
     return
+
 
 def main():
     if groupName == '':
@@ -145,6 +156,7 @@ def main():
                 print ("Error on %s: %s" % (thisName, e.strerror))
         download_code (groupId)
         return
+
 
 if __name__ == '__main__':
     main ()
